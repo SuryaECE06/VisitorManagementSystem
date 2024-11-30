@@ -1,0 +1,172 @@
+package vms;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+public class VisitorManagementSystem extends JFrame {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final ArrayList<Visitor> visitorList = new ArrayList<>();
+    private final JTextArea visitorLog = new JTextArea();
+
+    public VisitorManagementSystem() {
+        setTitle("Visitor Management System");
+        setSize(600, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Top Panel for Visitor Registration
+        JPanel registrationPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        registrationPanel.setBorder(BorderFactory.createTitledBorder("Visitor Registration"));
+
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField();
+
+        JLabel contactLabel = new JLabel("Contact:");
+        JTextField contactField = new JTextField();
+
+        JLabel purposeLabel = new JLabel("Purpose of Visit:");
+        JTextField purposeField = new JTextField();
+
+        JLabel checkInLabel = new JLabel("Check-In Time:");
+        JTextField checkInField = new JTextField();
+
+        JButton registerButton = new JButton("Register Visitor");
+
+        registrationPanel.add(nameLabel);
+        registrationPanel.add(nameField);
+        registrationPanel.add(contactLabel);
+        registrationPanel.add(contactField);
+        registrationPanel.add(purposeLabel);
+        registrationPanel.add(purposeField);
+        registrationPanel.add(checkInLabel);
+        registrationPanel.add(checkInField);
+        registrationPanel.add(new JLabel());
+        registrationPanel.add(registerButton);
+
+        add(registrationPanel, BorderLayout.NORTH);
+
+        // Middle Panel for Visitor Log
+        visitorLog.setEditable(false);
+        visitorLog.setBorder(BorderFactory.createTitledBorder("Visitor Log"));
+        JScrollPane logScrollPane = new JScrollPane(visitorLog);
+        add(logScrollPane, BorderLayout.CENTER);
+
+        // Bottom Panel for Check-Out
+        JPanel checkoutPanel = new JPanel(new FlowLayout());
+        checkoutPanel.setBorder(BorderFactory.createTitledBorder("Check-Out Visitor"));
+
+        JLabel checkOutLabel = new JLabel("Visitor Name:");
+        JTextField checkOutField = new JTextField(20);
+        JButton checkOutButton = new JButton("Check-Out");
+
+        checkoutPanel.add(checkOutLabel);
+        checkoutPanel.add(checkOutField);
+        checkoutPanel.add(checkOutButton);
+        add(checkoutPanel, BorderLayout.SOUTH);
+
+        // Register Visitor Action
+        registerButton.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String contact = contactField.getText().trim();
+            String purpose = purposeField.getText().trim();
+            String checkIn = checkInField.getText().trim();
+
+            if (name.isEmpty() || contact.isEmpty() || purpose.isEmpty() || checkIn.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Visitor visitor = new Visitor(name, contact, purpose, checkIn);
+            visitorList.add(visitor);
+            updateVisitorLog();
+            clearFields(nameField, contactField, purposeField, checkInField);
+        });
+
+        // Check-Out Visitor Action
+        checkOutButton.addActionListener(e -> {
+            String name = checkOutField.getText().trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter the visitor's name!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            boolean found = false;
+            for (Visitor visitor : visitorList) {
+                if (visitor.getName().equalsIgnoreCase(name) && visitor.getCheckOutTime() == null) {
+                    visitor.setCheckOutTime(java.time.LocalTime.now().toString());
+                    updateVisitorLog();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                JOptionPane.showMessageDialog(this, "Visitor not found or already checked out!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                checkOutField.setText("");
+            }
+        });
+    }
+
+    private void updateVisitorLog() {
+        StringBuilder logBuilder = new StringBuilder();
+        for (Visitor visitor : visitorList) {
+            logBuilder.append(visitor).append("\n");
+        }
+        visitorLog.setText(logBuilder.toString());
+    }
+
+    private void clearFields(JTextField... fields) {
+        for (JTextField field : fields) {
+            field.setText("");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            VisitorManagementSystem vms = new VisitorManagementSystem();
+            vms.setVisible(true);
+        });
+    }
+
+    // Visitor Class to Store Visitor Details
+    private static class Visitor {
+        private final String name;
+        private final String contact;
+        private final String purpose;
+        private final String checkInTime;
+        private String checkOutTime;
+
+        public Visitor(String name, String contact, String purpose, String checkInTime) {
+            this.name = name;
+            this.contact = contact;
+            this.purpose = purpose;
+            this.checkInTime = checkInTime;
+            this.checkOutTime = null;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getCheckOutTime() {
+            return checkOutTime;
+        }
+
+        public void setCheckOutTime(String checkOutTime) {
+            this.checkOutTime = checkOutTime;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Name: %s | Contact: %s | Purpose: %s | Check-In: %s | Check-Out: %s",
+                    name, contact, purpose, checkInTime, checkOutTime == null ? "N/A" : checkOutTime);
+        }
+    }
+}
