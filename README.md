@@ -1,0 +1,3 @@
+The Visitor Management System (VMS) in this code allows users to register visitors, track their check-in/check-out times, and display visitor details in a log. 
+It uses Java Swing to create a simple graphical user interface with three main components: a registration panel for entering visitor details (name, contact, purpose, and check-in time), a visitor log that displays all registered visitors and their check-in/check-out times, and a check-out panel to allow users to mark visitors as checked out by entering their name.
+The system ensures all fields are filled before registering a visitor and updates the log with the check-in and check-out times, making it easy to track visitor activity
